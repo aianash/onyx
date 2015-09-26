@@ -21,11 +21,14 @@ import com.typesafe.sbt.packager.docker.{Cmd, ExecCmd, CmdLike}
 
 import com.goshoplane.sbt.standard.libraries.StandardLibraries
 
+
 object OnyxBuild extends Build with StandardLibraries {
+
+  lazy val makeScript = TaskKey[Unit]("make-script", "make script in local directory to run main classes")
 
   def sharedSettings = Seq(
     organization := "com.goshoplane",
-    version := "0.0.1",
+    version := "0.1.0",
     scalaVersion := Version.scala,
     crossScalaVersions := Seq(Version.scala, "2.10.4"),
     scalacOptions := Seq("-unchecked", "-optimize", "-deprecation", "-feature", "-language:higherKinds", "-language:implicitConversions", "-language:postfixOps", "-language:reflectiveCalls", "-Yinline-warnings", "-encoding", "utf8"),
@@ -44,21 +47,62 @@ object OnyxBuild extends Build with StandardLibraries {
     base = file("."),
     settings = Project.defaultSettings ++
       sharedSettings
-  ).settings(
-    libraryDependencies ++= Seq(
-    ) ++ Libs.akka
-  ) aggregate (core)
+  ) aggregate (core, datasetGenerators, queryModelling)
 
   lazy val core = Project(
     id = "onyx-core",
     base = file("core"),
-    settings = Project.defaultSettings ++
-      sharedSettings
+    settings = Project.defaultSettings ++ sharedSettings
   ).settings(
     name := "onyx-core",
 
     libraryDependencies ++= Seq(
-    )
+      "jline" % "jline" % "2.12.1"
+    ) ++ Libs.mapdb
   )
+
+  lazy val datasetGenerators = Project(
+    id = "onyx-dataset-generators",
+    base = file("dataset-generators"),
+    settings = Project.defaultSettings ++ sharedSettings
+  ).enablePlugins(JavaAppPackaging)
+  .settings(
+    name := "onyx-dataset-generators",
+
+    libraryDependencies ++= Seq(
+      "com.goshoplane" %% "hemingway-dictionary" % "0.1.0"
+    ) ++ Libs.lucene
+      ++ Libs.fastutil
+      ++ Libs.scallop
+      ++ Libs.playJson
+      ++ Libs.mapdb,
+
+    makeScript <<= (stage in Universal, stagingDirectory in Universal, baseDirectory in ThisBuild, streams) map { (_, dir, cwd, streams) =>
+      var path = dir / "bin" / "onyx-dataset-generators"
+      sbt.Process(Seq("ln", "-sf", path.toString, "onyx-dataset-generators"), cwd) ! streams.log
+    }
+  ) dependsOn(core)
+
+  lazy val queryModelling = Project(
+    id = "onyx-querymodelling",
+    base = file("querymodelling"),
+    settings = Project.defaultSettings ++ sharedSettings
+  ).enablePlugins(JavaAppPackaging)
+  .settings(
+    name := "onyx-querymodelling",
+
+    libraryDependencies ++= Seq(
+      "com.goshoplane" %% "hemingway-dictionary" % "0.1.0"
+    ) ++ Libs.lucene
+      ++ Libs.fastutil
+      ++ Libs.scallop
+      ++ Libs.playJson
+      ++ Libs.mapdb,
+
+    makeScript <<= (stage in Universal, stagingDirectory in Universal, baseDirectory in ThisBuild, streams) map { (_, dir, cwd, streams) =>
+      var path = dir / "bin" / "onyx-querymodelling"
+      sbt.Process(Seq("ln", "-sf", path.toString, "onyx-querymodelling"), cwd) ! streams.log
+    }
+  ) dependsOn(core)
 
 }
