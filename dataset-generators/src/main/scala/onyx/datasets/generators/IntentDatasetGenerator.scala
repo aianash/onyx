@@ -56,6 +56,7 @@ object IntentDatasetGenerator {
     val sink = new RECL.Sink[IntentDataset, I, Char, I] {
       def apply(dataset: IntentDataset) = {
         case Left((_, intent, 'y')) => dataset += intent
+        case Right(intent) => dataset += intent
         case _ =>
       }
     }
@@ -67,7 +68,7 @@ object IntentDatasetGenerator {
   case object ALTRelevanceRECL extends RECL[IntentDataset, ALT, Char, ALT] {
 
     val source  = new RECL.Source[ALT, IntentDataset] {
-      def apply(dataset: IntentDataset) = Iterator.continually(dataset.randomALT)
+      def apply(dataset: IntentDataset) = dataset.generateRandomALT
     }
 
     val eval = new RECL.Eval[IntentDataset, ALT, ALT] {
@@ -78,7 +79,7 @@ object IntentDatasetGenerator {
 
     val sink = new RECL.Sink[IntentDataset, ALT, Char, ALT] {
       def apply(dataset: IntentDataset) = {
-        case Left((_, alt, choice)) => dataset.addALTRelevance(alt, relevance(choice))
+        case Left((_, alt, choice)) => dataset += (alt -> relevance(choice))
         case _ =>
       }
     }

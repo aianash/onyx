@@ -57,7 +57,8 @@ object OnyxBuild extends Build with StandardLibraries {
     name := "onyx-core",
 
     libraryDependencies ++= Seq(
-      "jline" % "jline" % "2.12.1"
+      "jline" % "jline" % "2.12.1",
+      "com.goshoplane" %% "hemingway-dictionary" % "0.1.0"
     ) ++ Libs.mapdb
   )
 
