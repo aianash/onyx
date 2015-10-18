@@ -5,7 +5,7 @@ package generators
 import org.rogach.scallop._
 
 import core.repl._
-import core.datasets.alt._
+import creed.query._, models._, datasets._
 
 
 /** Starts RECL loop for adding activities, look and time/weather;
@@ -18,7 +18,7 @@ object IntentDatasetGenerator {
     val recl = opt[String]("add", descr = "what task to perform", required = true) map {
       case "activity" | "activities" | "act" | "a" => AddIntentRECL("activity", Activity(_))
       case "look" | "looks" | "l"                  => AddIntentRECL("look", Look(_))
-      case "weather" | "time" | "t"                => AddIntentRECL("time/weather", TimeWeather(_))
+      case "weather" | "time" | "t" | "tw"         => AddIntentRECL("time/weather", TimeWeather(_))
       case "alt"                                   => ALTRelevanceRECL
       case _                                       => RECL.JustExit[IntentDataset]("Unidentified task to perform. Exiting")
     }
@@ -36,7 +36,7 @@ object IntentDatasetGenerator {
     * @param name - name of the intent for command like prompt
     * @param instantiate - how to instantiate intent using input from command like
     */
-  case class AddIntentRECL[I <: Intent](name: String, instantiate: String => I) extends RECL[IntentDataset, I, Char, I] {
+  case class AddIntentRECL[I <: Intent[I]](name: String, instantiate: String => I) extends RECL[IntentDataset, I, Char, I] {
     val source  = RECL.ConsoleReadLineSource[I, IntentDataset](s"$shellPrompt add $name", instantiate)
 
     val eval = new RECL.Eval[IntentDataset, I, I] {

@@ -71,7 +71,8 @@ object OnyxBuild extends Build with StandardLibraries {
     name := "onyx-dataset-generators",
 
     libraryDependencies ++= Seq(
-      "com.goshoplane" %% "hemingway-dictionary" % "0.1.0"
+      "com.goshoplane" %% "hemingway-dictionary" % "0.1.0",
+      "com.goshoplane" %% "creed-query-models" % "1.0.0"
     ) ++ Libs.lucene
       ++ Libs.fastutil
       ++ Libs.scallop
