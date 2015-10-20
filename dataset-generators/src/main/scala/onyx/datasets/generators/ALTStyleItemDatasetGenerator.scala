@@ -18,10 +18,10 @@ object ALTStyleItemDatasetGenerator {
   def main(args: Array[String]) {
     val conf = new Conf(args)
     val dataset = ALTItemRelevanceDataset(conf.datasetfile(), conf.itemjsonfile())
-    ALTRelevanceRECL.start(dataset)
+    ALTItemRelevanceRECL.start(dataset)
   }
 
-  case object ALTRelevanceRECL extends RECL[ALTItemRelevanceDataset, (ALT, DatasetItemFeature), Char, (ALT, DatasetItemFeature)] {
+  case object ALTItemRelevanceRECL extends RECL[ALTItemRelevanceDataset, (ALT, DatasetItemFeature), Char, (ALT, DatasetItemFeature)] {
 
     val source  = new RECL.Source[(ALT, DatasetItemFeature), ALTItemRelevanceDataset] {
       def apply(dataset: ALTItemRelevanceDataset) = dataset.generateRandomALTFeatureCombo
@@ -47,6 +47,7 @@ object ALTStyleItemDatasetGenerator {
       case '3' => 0.9f
       case _   => 0.0f
     }
+
   }
 
 }
