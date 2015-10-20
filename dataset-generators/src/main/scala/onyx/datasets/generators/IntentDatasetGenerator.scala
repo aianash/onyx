@@ -72,7 +72,8 @@ object IntentDatasetGenerator {
     }
 
     val eval = new RECL.Eval[IntentDataset, ALT, ALT] {
-      def apply(dataset: IntentDataset) = (alt : ALT) => Some(s"How relevant is ALT = [$alt] ?" -> alt)
+      def apply(dataset: IntentDataset) = (alt : ALT) =>
+        Some(s"How relevant is to look ${alt.look.value.toUpperCase} for ${alt.activity.value.toUpperCase} on a ${alt.timeWeather.value.toUpperCase} time ?" -> alt)
     }
 
     val confirm = RECL.one23Confirm
