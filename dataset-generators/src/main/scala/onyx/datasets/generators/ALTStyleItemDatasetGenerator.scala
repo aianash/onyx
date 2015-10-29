@@ -30,6 +30,7 @@ object ALTStyleItemDatasetGenerator {
     val itemjson           = conf.itemjson()
     val intentDataset      = IntentDataset(conf.intentdataset())
     val itemFeatureDataset = ALTItemRelevanceDataset(conf.output())
+
     ALTItemRelevanceRECL(intentDataset, itemjson).start(itemFeatureDataset)
   }
 
@@ -50,7 +51,7 @@ object ALTStyleItemDatasetGenerator {
       def apply(dataset: ALTItemRelevanceDataset) = (altItemT : (ALT, String)) => {
         val itemJson = Json.parse(altItemT._2)
         val itg      = ItemTypeGroup((itemJson \ "itemTypeGroup").as[String])
-        val styles   = (itemJson \ "styles").as[Seq[String]] map { x => ClothingStyle(x) }
+        val styles   = ClothingStyles((itemJson \ "styles").as[Seq[String]] map { x => ClothingStyle(x) })
         val fabric   = ApparelFabric((itemJson \ "fabric").as[String])
         val fit      = ApparelFit((itemJson \ "fit").as[String])
         val color    = Colors((itemJson \ "colors").as[Seq[String]])
