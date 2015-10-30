@@ -6,6 +6,7 @@ import org.rogach.scallop._
 
 import core.repl._
 import creed.query._, models._, datasets._
+import creed.core.nlp.NLP
 
 
 /** Starts RECL loop for adding activities, look and time/weather;
@@ -14,14 +15,21 @@ import creed.query._, models._, datasets._
 object IntentDatasetGenerator {
 
   class Conf(arguments: Seq[String]) extends ScallopConf(arguments) {
+
+    def lemmatizeVerbs(x: String) = {
+      val posToLammetize = Seq("VB", "VBD", "VBG", "VBN", "VBP", "VPZ")
+      NLP.lemmatize(x, posToLammetize, true).mkString(" ")
+    }
+
     val datasetfile = opt[String]("datasetfile", descr = "source dataset file ", required = true)
     val recl = opt[String]("add", descr = "what task to perform", required = true) map {
-      case "activity" | "activities" | "act" | "a" => AddIntentRECL("activity", Activity(_))
-      case "look" | "looks" | "l"                  => AddIntentRECL("look", Look(_))
-      case "weather" | "time" | "t" | "tw"         => AddIntentRECL("time/weather", TimeWeather(_))
+      case "activity" | "activities" | "act" | "a" => AddIntentRECL("activity", x => Activity(lemmatizeVerbs(x)))
+      case "look" | "looks" | "l"                  => AddIntentRECL("look", x => Look(lemmatizeVerbs(x)))
+      case "weather" | "time" | "t" | "tw"         => AddIntentRECL("time/weather", x => TimeWeather(lemmatizeVerbs(x)))
       case "alt"                                   => ALTRelevanceRECL
       case _                                       => RECL.JustExit[IntentDataset]("Unidentified task to perform. Exiting")
     }
+
   }
 
   def main(args: Array[String]) {

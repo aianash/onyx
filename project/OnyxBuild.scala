@@ -72,12 +72,16 @@ object OnyxBuild extends Build with StandardLibraries {
 
     libraryDependencies ++= Seq(
       "com.goshoplane" %% "hemingway-dictionary" % "0.1.0",
-      "com.goshoplane" %% "creed-query-models" % "1.0.0"
+      "com.goshoplane" %% "creed-query-models" % "1.0.0",
+      "edu.stanford.nlp" % "stanford-corenlp" % "3.5.2",
+      "edu.stanford.nlp" % "stanford-corenlp" % "3.5.2" classifier "models"
     ) ++ Libs.lucene
       ++ Libs.fastutil
       ++ Libs.scallop
       ++ Libs.playJson
       ++ Libs.mapdb,
+
+    mainClass in Compile := Some("onyx.datasets.generators.ALTStyleItemDatasetGenerator"),
 
     makeScript <<= (stage in Universal, stagingDirectory in Universal, baseDirectory in ThisBuild, streams) map { (_, dir, cwd, streams) =>
       var path = dir / "bin" / "onyx-dataset-generators"
