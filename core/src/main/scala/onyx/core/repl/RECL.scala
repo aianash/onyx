@@ -132,6 +132,19 @@ object RECL {
     }
   }
 
+  object sevenStarConfirm extends CharConfirm("(1/2/3/4/5/6/7)") {
+    def test(selection: Char) = selection match {
+      case '1' => OK('1')
+      case '2' => OK('2')
+      case '3' => OK('3')
+      case '4' => OK('4')
+      case '5' => OK('5')
+      case '6' => OK('6')
+      case '7' => OK('7')
+      case _ => ASKAGAIN[Char]
+    }
+  }
+
   //////////////////////////// Sink //////////////////////////////
 
   trait Sink[Context, From, Choice, To] {

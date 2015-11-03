@@ -96,7 +96,7 @@ object ALTStyleItemDatasetGenerator {
       }
     }
 
-    val confirm = RECL.one23Confirm
+    val confirm = RECL.sevenStarConfirm
 
     val sink = new RECL.Sink[(ALTItemRelevanceDataset, JDialog, JLabel), (ALT, String), Char, (ALT, ItemFeature)] {
       def apply(context: (ALTItemRelevanceDataset, JDialog, JLabel)) = {
@@ -107,8 +107,12 @@ object ALTStyleItemDatasetGenerator {
 
     private def relevance(choice: Char) = choice match {
       case '1' => 0.1f
-      case '2' => 0.5f
-      case '3' => 0.9f
+      case '2' => 0.2f
+      case '3' => 0.3f
+      case '4' => 0.4f
+      case '5' => 0.5f
+      case '6' => 0.6f
+      case '7' => 0.7f
       case _   => 0.0f
     }
 

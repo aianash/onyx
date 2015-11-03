@@ -44,7 +44,7 @@ object IntentDatasetGenerator {
     * @param name - name of the intent for command like prompt
     * @param instantiate - how to instantiate intent using input from command like
     */
-  case class AddIntentRECL[I <: Intent[I]](name: String, instantiate: String => I) extends RECL[IntentDataset, I, Char, I] {
+  case class AddIntentRECL[I <: Intent](name: String, instantiate: String => I) extends RECL[IntentDataset, I, Char, I] {
     val source  = RECL.ConsoleReadLineSource[I, IntentDataset](s"$shellPrompt add $name", instantiate)
 
     val eval = new RECL.Eval[IntentDataset, I, I] {
