@@ -1,0 +1,13 @@
+@(id:Int, path: String)(implicit req: RequestHeader)
+
+@main {
+
+  <div>
+    <h1>Hello there !</h1>
+
+    <img src="@routes.Assets.versioned(path)" />
+    <a href="/img?id=@(id-1)">Prev</a>
+    <a href="/img?id=@(id+1)">Next</a>
+  </div>
+
+}
