@@ -1,5 +1,5 @@
 window.onload = function() {
-  var json = '[{"top":230, "left": 250, "width": 50, "height": 200}, {"top":230, "left": 300, "width": 180, "height": 300}]';
+  var json = decodeURIComponent(document.getElementById('glimpse-conf').value);
   var canvas = init();
   drawGlimpseBoxes(canvas, json);
   addCallbacks();

@@ -13,6 +13,10 @@ case class GetImage(id: Int) extends GlimpseTaggerMessage
 case class TagImage(id: Int, csv: Seq[Int]) extends GlimpseTaggerMessage
 
 
+/**
+ * GlimpseTagger is a class responsible for storing information whether a glimpse
+ * is present or absent in an image. Glimpses are loaded from a config file.
+ */
 class GlimpseTagger(imgDir: String, tagsFile: String) extends Actor with ActorLogging {
 
   val dir   = new File(imgDir)
@@ -28,7 +32,6 @@ class GlimpseTagger(imgDir: String, tagsFile: String) extends Actor with ActorLo
       val file = files(id)
       pw.append(file.getName + "," + tags.mkString(",") + "\n")
       pw.flush()
-
   }
 
   override def postStop = pw.close()
