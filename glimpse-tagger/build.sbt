@@ -11,7 +11,8 @@ lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
   .settings(
     libraryDependencies ++= Seq(
-    "com.typesafe.akka" %% "akka-cluster" % "2.3.12"
+    "com.typesafe.akka" %% "akka-cluster" % "2.4.4",
+    "com.typesafe.akka" %% "akka-stream" % "2.4.4"
     )
   )
 

@@ -1,0 +1,14 @@
+@()(implicit req: RequestHeader)
+
+@main {
+
+  <script type="text/javascript" src="@routes.Assets.versioned("javascripts/config.js")"></script>
+
+  <div>
+    <input type="file" id="fileUpload" />
+    <canvas id="canvas" width="300" height="300" style="border:1px solid #ccc"></canvas>
+    <button type="button" id="add-box">Add Box</button>
+    <button type="button" id="generate-config">Generate Config</button>
+  </div>
+
+}

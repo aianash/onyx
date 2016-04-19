@@ -2,11 +2,14 @@
 
 @main {
 
-  <div>
-    <h1>Hello there !</h1>
+  <script type="text/javascript" src="@routes.Assets.versioned("javascripts/img.js")"></script>
 
-    <img src="@routes.Assets.versioned(path)" />
+  <div>
+    <canvas id="canvas" width="300" height="300" style="border:1px solid #ccc"></canvas>
+    <input type="hidden" id="id" value="@id">
+    <img style="display: none;" id="item" src="@routes.Assets.versioned(path)" />
     <a href="/img?id=@(id-1)">Prev</a>
+    <button type="button">Add Tags</button>
     <a href="/img?id=@(id+1)">Next</a>
   </div>
 

@@ -1,6 +1,6 @@
 package actors
 
-import java.io.File
+import java.io._
 
 import akka.actor.{Actor, ActorLogging, Props, ActorRef}
 
@@ -13,9 +13,10 @@ case class GetImage(id: Int) extends GlimpseTaggerMessage
 case class TagImage(id: Int, csv: Seq[Int]) extends GlimpseTaggerMessage
 
 
-class GlimpseTagger(imgDir: String) extends Actor with ActorLogging {
+class GlimpseTagger(imgDir: String, tagsFile: String) extends Actor with ActorLogging {
 
-  val dir = new File(imgDir)
+  val dir   = new File(imgDir)
+  val pw    = new PrintWriter(new FileWriter(tagsFile, true))
   val files = dir.listFiles.filter(_.isFile).toList
 
   def receive = {
@@ -23,15 +24,20 @@ class GlimpseTagger(imgDir: String) extends Actor with ActorLogging {
       val file = files(id)
       sender() ! file.getName
 
-    case TagImage(id, csv) =>
+    case TagImage(id, tags) =>
+      val file = files(id)
+      pw.append(file.getName + "," + tags.mkString(",") + "\n")
+      pw.flush()
 
   }
+
+  override def postStop = pw.close()
 
 }
 
 
 object GlimpseTagger {
 
-  def props(imgDir: String) = Props(classOf[GlimpseTagger], imgDir)
+  def props(imgDir: String, tagsFile: String) = Props(classOf[GlimpseTagger], imgDir, tagsFile)
 
 }
