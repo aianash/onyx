@@ -1,4 +1,4 @@
-@(id:Int, path: String, glimpseConf: String)(implicit req: RequestHeader)
+@(id:Int, path: String, glimpseConf: String, intents: Array[String])(implicit req: RequestHeader)
 
 @main {
 
@@ -7,11 +7,25 @@
   <input type="hidden" id="glimpse-conf" value="@glimpseConf"/>
 
   <div>
+  <div>
     <canvas id="canvas" width="300" height="300" style="border:1px solid #ccc"></canvas>
     <input type="hidden" id="id" value="@id">
     <img style="display: none;" id="item" src="@routes.Assets.versioned(path)" />
+  </div>
+
+  <div>
+    <select multiple id="intents">
+      @for(intent <- intents) {
+        <option value="@intent">@intent</option>
+      }
+    </select>
+  </div>
+
+  </div>
+
+  <div>
     <a href="/img?id=@(id-1)">Prev</a>
-    <button type="button">Add Tags</button>
+    <button type="button">Add Info</button>
     <a href="/img?id=@(id+1)">Next</a>
   </div>
 

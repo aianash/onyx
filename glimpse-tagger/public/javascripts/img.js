@@ -25,8 +25,9 @@ function init() {
 
 function addCallbacks() {
   $('button').on('click', function() {
-    var id = document.getElementById('id').value;
-    sendAjax('/tag', 'id=' + id + '&tags=' + JSON.stringify(glimpses));
+    var id = jQuery('#id').val();
+    var intents = jQuery('#intents').val();
+    sendAjax('/tag', 'id=' + id + '&tags=' + JSON.stringify(glimpses) + '&intents=' + JSON.stringify(intents));
   })
 }
 

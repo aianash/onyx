@@ -10,17 +10,18 @@ import com.google.inject.assistedinject.Assisted
 
 sealed trait GlimpseTaggerMessage
 case class GetImage(id: Int) extends GlimpseTaggerMessage
-case class TagImage(id: Int, csv: Seq[Int]) extends GlimpseTaggerMessage
+case class TagImage(id: Int, glimpses: Seq[Int], intents: Seq[String]) extends GlimpseTaggerMessage
 
 
 /**
  * GlimpseTagger is a class responsible for storing information whether a glimpse
  * is present or absent in an image. Glimpses are loaded from a config file.
  */
-class GlimpseTagger(imgDir: String, tagsFile: String) extends Actor with ActorLogging {
+class GlimpseTagger(imgDir: String, tagsOutFile: String, intentOutFile: String) extends Actor with ActorLogging {
 
   val dir   = new File(imgDir)
-  val pw    = new PrintWriter(new FileWriter(tagsFile, true))
+  val pwTags    = new PrintWriter(new FileWriter(tagsOutFile, true))
+  val pwIntents = new PrintWriter(new FileWriter(intentOutFile, true))
   val files = dir.listFiles.filter(_.isFile).toList
 
   def receive = {
@@ -28,19 +29,24 @@ class GlimpseTagger(imgDir: String, tagsFile: String) extends Actor with ActorLo
       val file = files(id)
       sender() ! file.getName
 
-    case TagImage(id, tags) =>
+    case TagImage(id, glimpses, intents) =>
       val file = files(id)
-      pw.append(file.getName + "," + tags.mkString(",") + "\n")
-      pw.flush()
+      pwTags.append(file.getName + "," + glimpses.mkString(",") + "\n")
+      pwTags.flush()
+      pwIntents.append(file.getName + "," + intents.mkString(",") + "\n")
+      pwIntents.flush()
   }
 
-  override def postStop = pw.close()
+  override def postStop = {
+    pwTags.close()
+    pwIntents.close()
+  }
 
 }
 
 
 object GlimpseTagger {
 
-  def props(imgDir: String, tagsFile: String) = Props(classOf[GlimpseTagger], imgDir, tagsFile)
+  def props(imgDir: String, tagsOutFile: String, intentOutFile: String) = Props(classOf[GlimpseTagger], imgDir, tagsOutFile, intentOutFile)
 
 }

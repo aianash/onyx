@@ -28,9 +28,11 @@ import actors._
 class Application @Inject()(system: ActorSystem, config: Configuration) extends Controller {
 
   val imgDir      = config.underlying.getString("application.img-dir")
-  val tagsFile    = config.underlying.getString("application.tags-file")
+  val tagsOut     = config.underlying.getString("application.tags-out")
+  val intentOut   = config.underlying.getString("application.intents-out")
   val glimpseConf = ScalaSource.fromFile(config.underlying.getString("application.glimpse-conf")).mkString
-  val tagger      = system.actorOf(GlimpseTagger.props(imgDir, tagsFile))
+  val intentsConf = ScalaSource.fromFile(config.underlying.getString("application.intents-conf")).mkString.split("\n")
+  val tagger      = system.actorOf(GlimpseTagger.props(imgDir, tagsOut, intentOut))
 
   /**
    * Action to get image
@@ -41,17 +43,18 @@ class Application @Inject()(system: ActorSystem, config: Configuration) extends 
     val imgF = tagger ? GetImage(id)
     val img =  Await.result(imgF, timeout.duration).asInstanceOf[String]
     val path = "img/partial/" + img
-    Ok(views.html.img(id, path, URLEncoder.encode(glimpseConf, "UTF-8")))
+    Ok(views.html.img(id, path, URLEncoder.encode(glimpseConf, "UTF-8"), intentsConf))
   }
 
   /**
-   * Action to save glimpse tags for given image
+   * Action to save glimpse tags and intents for given image
    * @param {Int}    id: id of the image
    * @param {String} glimpses: glimpse tags, json string of 1s and 0s
    */
-  def tag(id: Int, glimpses: String) = Action { implicit req =>
-    val csv = Json.parse(glimpses)
-    tagger ! TagImage(id, csv.as[Seq[Int]])
+  def tag(id: Int, glimpses: String, intents: String) = Action { implicit req =>
+    val tagsJson = Json.parse(glimpses)
+    val intentsJson  = Json.parse(intents)
+    tagger ! TagImage(id, tagsJson.as[Seq[Int]], intentsJson.as[Seq[String]])
     Ok("Glimpse tags will be added !")
   }
 
