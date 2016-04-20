@@ -41,7 +41,7 @@ class Application @Inject()(system: ActorSystem, config: Configuration) extends 
     val imgF = tagger ? GetImage(id)
     val img =  Await.result(imgF, timeout.duration).asInstanceOf[String]
     val path = "img/partial/" + img
-    Ok(views.html.img(id, path, URLEncoder.encode(glimpseConf)))
+    Ok(views.html.img(id, path, URLEncoder.encode(glimpseConf, "UTF-8")))
   }
 
   /**
