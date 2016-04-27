@@ -7,19 +7,27 @@
   <input type="hidden" id="glimpse-conf" value="@glimpseConf"/>
 
   <div>
-  <div>
-    <canvas id="canvas" width="300" height="300" style="border:1px solid #ccc"></canvas>
-    <input type="hidden" id="id" value="@id">
-    <img style="display: none;" id="item" src="@routes.Assets.versioned(path)" />
-  </div>
+  <table>
+    <tr>
+      <td>
+        <div>
+          <canvas id="canvas" width="300" height="300" style="border:1px solid #ccc"></canvas>
+          <input type="hidden" id="id" value="@id">
+          <img style="display: none;" id="item" src="@routes.Assets.versioned(path)" />
+        </div>
+      </td>
 
-  <div>
-    <select multiple id="intents">
-      @for(intent <- intents) {
-        <option value="@intent">@intent</option>
-      }
-    </select>
-  </div>
+      <td>
+        <div>
+          <select multiple id="intents">
+            @for(intent <- intents) {
+              <option value="@intent">@intent</option>
+            }
+          </select>
+        </div>
+      </td>
+    </tr>
+  </table>
 
   </div>
 
