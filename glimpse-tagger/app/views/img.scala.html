@@ -1,4 +1,4 @@
-@(id:Int, path: String, glimpseConf: String, intents: Array[String])(implicit req: RequestHeader)
+@(idx: Int, id: String, path: String, glimpseConf: String, intents: Array[String])(implicit req: RequestHeader)
 
 @main {
 
@@ -24,9 +24,9 @@
   </div>
 
   <div>
-    <a href="/img?id=@(id-1)">Prev</a>
+    <a href="/img?idx=@(idx-1)">Prev</a>
     <button type="button">Add Info</button>
-    <a href="/img?id=@(id+1)">Next</a>
+    <a href="/img?idx=@(idx+1)">Next</a>
   </div>
 
 }

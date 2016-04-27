@@ -27,34 +27,41 @@ import actors._
 @Singleton
 class Application @Inject()(system: ActorSystem, config: Configuration) extends Controller {
 
-  val imgDir      = config.underlying.getString("application.img-dir")
-  val tagsOut     = config.underlying.getString("application.tags-out")
-  val intentOut   = config.underlying.getString("application.intents-out")
-  val glimpseConf = ScalaSource.fromFile(config.underlying.getString("application.glimpse-conf")).mkString
-  val intentsConf = ScalaSource.fromFile(config.underlying.getString("application.intents-conf")).mkString.split("\n")
-  val tagger      = system.actorOf(GlimpseTagger.props(imgDir, tagsOut, intentOut))
+  val imgdir           = config.underlying.getString("application.img-dir")
+  val glimpseoutfile   = config.underlying.getString("application.glimpse-outfile")
+  val intentoutfile    = config.underlying.getString("application.intent-outfile")
+  val glimpseconffile  = config.underlying.getString("application.glimpse-conffile")
+  val intentconffile   = config.underlying.getString("application.intent-conffile")
+
+  val glimpseconf      = ScalaSource.fromFile(glimpseconffile).mkString
+  val intentsconf      = ScalaSource.fromFile(intentconffile).mkString.split("\n")
+
+  val imageserver      = system.actorOf(ImageServer.props(imgdir))
+  val glimpsetagger    = system.actorOf(GlimpseTagger.props(glimpseoutfile))
+  val intenttagger     = system.actorOf(IntentTagger.props(intentoutfile))
 
   /**
    * Action to get image
    * @param {Int} id: Location of image in list
    */
-  def img(id: Int) = Action { implicit req =>
+  def img(idx: Int) = Action { implicit req =>
     implicit val timeout = Timeout(1 second)
-    val imgF = tagger ? GetImage(id)
+    val imgF = imageserver ? GetImage(idx)
     val img =  Await.result(imgF, timeout.duration).asInstanceOf[String]
     val path = "img/partial/" + img
-    Ok(views.html.img(id, path, URLEncoder.encode(glimpseConf, "UTF-8"), intentsConf))
+    Ok(views.html.img(idx, img, path, URLEncoder.encode(glimpseconf, "UTF-8"), intentsconf))
   }
 
   /**
    * Action to save glimpse tags and intents for given image
-   * @param {Int}    id: id of the image
+   * @param {String} id: id of the image
    * @param {String} glimpses: glimpse tags, json string of 1s and 0s
    */
-  def tag(id: Int, glimpses: String, intents: String) = Action { implicit req =>
-    val tagsJson = Json.parse(glimpses)
-    val intentsJson  = Json.parse(intents)
-    tagger ! TagImage(id, tagsJson.as[Seq[Int]], intentsJson.as[Seq[String]])
+  def tag(id: String, glimpses: String, intents: String) = Action { implicit req =>
+    val glimpsejson = Json.parse(glimpses)
+    val intentjson = Json.parse(intents)
+    glimpsetagger ! TagGlimpse(id, glimpsejson.as[Seq[Int]])
+    intenttagger ! TagIntent(id, intentjson.as[Seq[String]])
     Ok("Glimpse tags will be added !")
   }
 

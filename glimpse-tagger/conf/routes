@@ -1,5 +1,6 @@
-GET     /img                controllers.Application.img(id: Int ?= 1)
-GET     /tag                controllers.Application.tag(id: Int, tags: String, intents: String)
+GET     /img                controllers.Application.img(idx: Int ?= 0)
+GET     /tag                controllers.Application.tag(id: String, tags: String, intents: String)
 GET     /config-generator   controllers.Application.configGenerator()
 GET     /save-config        controllers.Application.saveConfig(config: String)
+
 GET     /assets/*file       controllers.Assets.versioned(path="/public", file: Asset)
