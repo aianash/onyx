@@ -29,6 +29,25 @@ window.onload = function() {
   jQuery('#fileUpload').on('change', readImageCallback(canvas));
   jQuery('#add-box').on('click', addBoxCallback(canvas));
   jQuery('#generate-config').on('click', collectDataCallback(canvas));
+  jQuery('#load-config').on('click', loadConfigCallback(canvas));
+}
+
+
+function loadConfigCallback(canvas) {
+  return function() {
+    var config = JSON.parse(jQuery('#config').val());
+    for(var index in config) {
+      var prop = config[index]
+      var rect = new fabric.Rect({
+        top           : prop.top,
+        left          : prop.left,
+        width         : prop.width,
+        height        : prop.height,
+        opacity       : 0.3
+      });
+      canvas.add(rect);
+    }
+  }
 }
 
 
