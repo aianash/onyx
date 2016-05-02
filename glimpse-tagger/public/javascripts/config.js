@@ -26,16 +26,17 @@ function readImageCallback(canvas) {
 
 window.onload = function() {
   var canvas = new fabric.Canvas('canvas');
-  jQuery('#fileUpload').on('change', readImageCallback(canvas));
-  jQuery('#add-box').on('click', addBoxCallback(canvas));
-  jQuery('#generate-config').on('click', collectDataCallback(canvas));
-  jQuery('#load-config').on('click', loadConfigCallback(canvas));
+  $('#fileUpload').on('change', readImageCallback(canvas));
+  $('#add-box').on('click', addBoxCallback(canvas));
+  $('#generate-config').on('click', collectDataCallback(canvas));
+  $('#load-config').on('click', loadConfigCallback(canvas));
+  $('#remove-box').on('click', removeBoxCallback(canvas));
 }
 
 
 function loadConfigCallback(canvas) {
   return function() {
-    var config = JSON.parse(jQuery('#config').val());
+    var config = JSON.parse($('#config').val());
     for(var index in config) {
       var prop = config[index]
       var rect = new fabric.Rect({
@@ -85,5 +86,12 @@ function addBoxCallback(canvas){
       opacity : 0.2
     });
     canvas.add(rect);
+  }
+}
+
+function removeBoxCallback(canvas) {
+  return function() {
+    console.log(canvas.getActiveObject());
+    canvas.getActiveObject().remove();
   }
 }

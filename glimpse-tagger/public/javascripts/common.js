@@ -1,5 +1,5 @@
 function sendAjax(url, data) {
-  jQuery.ajax({
+  $.ajax({
     url: url,
     type: 'GET',
     data: data,
