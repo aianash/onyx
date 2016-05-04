@@ -20,6 +20,7 @@ function init() {
   canvas.setHeight(imgElement.height);
   canvas.setWidth(imgElement.width);
   canvas.add(imgInstance);
+  bindKeyEvents();
   return canvas;
 }
 
@@ -58,4 +59,14 @@ function drawGlimpseBoxes(canvas, json) {
 
     canvas.add(rect);
   }
+}
+
+function bindKeyEvents() {
+  Mousetrap.bind('left', function() {
+    $('a')[0].click();
+  });
+
+  Mousetrap.bind('right', function() {
+    $('a')[1].click();
+  });
 }

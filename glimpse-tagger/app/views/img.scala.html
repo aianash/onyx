@@ -3,6 +3,7 @@
 @main {
 
   <script type="text/javascript" src="@routes.Assets.versioned("javascripts/img.js")"></script>
+  <script type="text/javascript" src="@routes.Assets.versioned("libs/mousetrap.min.js")"></script>
 
   <input type="hidden" id="glimpse-conf" value="@glimpseConf"/>
 
@@ -32,9 +33,9 @@
   </div>
 
   <div>
-    <a href="/img?idx=@(idx-1)">Prev</a>
+    <a id="prev" href="/img?idx=@(idx-1)">Prev</a>
     <button type="button">Add Info</button>
-    <a href="/img?idx=@(idx+1)">Next</a>
+    <a id="next" href="/img?idx=@(idx+1)">Next</a>
   </div>
 
 }

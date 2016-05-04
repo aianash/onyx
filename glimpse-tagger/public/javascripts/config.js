@@ -100,10 +100,10 @@ function getRects(canvas) {
 
   var rects = objects.map(function(o) {
     return {
-      'left'   : o.getLeft(),
-      'top'    : o.getTop(),
-      'height' : o.getHeight(),
-      'width'  : o.getWidth()
+      'left'   : parseInt(o.getLeft()),
+      'top'    : parseInt(o.getTop()),
+      'height' : parseInt(o.getHeight()),
+      'width'  : parseInt(o.getWidth())
     }
   });
 
