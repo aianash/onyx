@@ -31,23 +31,56 @@ window.onload = function() {
   $('#generate-config').on('click', collectDataCallback(canvas));
   $('#load-config').on('click', loadConfigCallback(canvas));
   $('#remove-box').on('click', removeBoxCallback(canvas));
+  $('#clear-all').on('click', clearBoxesCallback(canvas));
+  $('#upload-config').on('change', uploadConfigCallback(canvas));
+}
+
+
+function clearBoxesCallback(canvas) {
+  return function clearBoxes() {
+    var objects = canvas.getObjects().filter(function(o) {
+      return !o.isType('image');
+    });
+    objects.forEach(function(o) {
+      o.remove();
+    });
+  }
+}
+
+
+function uploadConfigCallback(canvas) {
+  return function uploadConfig(e) {
+    clearBoxesCallback(canvas)();
+    var file = e.target.files[0];
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var config = JSON.parse(reader.result);
+      displayBoxes(canvas, config)
+    }
+    reader.readAsText(file);
+  }
+}
+
+function displayBoxes(canvas, config) {
+  for(var index in config) {
+    var prop = config[index]
+    var rect = new fabric.Rect({
+      top           : prop.top,
+      left          : prop.left,
+      width         : prop.width,
+      height        : prop.height,
+      opacity       : 0.3
+    });
+    canvas.add(rect);
+  }
 }
 
 
 function loadConfigCallback(canvas) {
   return function() {
+    clearBoxesCallback(canvas)();
     var config = JSON.parse($('#config').val());
-    for(var index in config) {
-      var prop = config[index]
-      var rect = new fabric.Rect({
-        top           : prop.top,
-        left          : prop.left,
-        width         : prop.width,
-        height        : prop.height,
-        opacity       : 0.3
-      });
-      canvas.add(rect);
-    }
+    displayBoxes(canvas, config);
   }
 }
 
