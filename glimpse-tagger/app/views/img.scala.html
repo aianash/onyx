@@ -1,11 +1,11 @@
-@(idx: Int, id: String, path: String, glimpseConf: String, intents: Array[String])(implicit req: RequestHeader)
+@(idx: Int, id: String, path: String, glimpseConf: String, intentsArr: Array[Array[String]], selectedglimpses: String, selectedintents: Seq[String])(implicit req: RequestHeader)
 
 @main {
 
   <script type="text/javascript" src="@routes.Assets.versioned("javascripts/img.js")"></script>
-  <script type="text/javascript" src="@routes.Assets.versioned("libs/mousetrap.min.js")"></script>
 
   <input type="hidden" id="glimpse-conf" value="@glimpseConf"/>
+  <input type="hidden" id="selected-glimpse" value="@selectedglimpses"/>
 
   <div>
   <table>
@@ -20,12 +20,20 @@
 
       <td>
         <div>
-          <select multiple id="intents">
-            @for(intent <- intents) {
-              <option value="@intent">@intent</option>
-            }
-          </select>
+          @for(intents <- intentsArr) {
+            <select multiple class="intents" style="height: 200px;">
+              @for(intent <- intents) {
+                @defining({if(selectedintents.contains(intent)) "selected" else ""}) { sel =>
+                  <option @sel value="@intent">@intent</option>
+                }
+              }
+            </select>
+          }
         </div>
+      </td>
+
+      <td>
+        <img src="@routes.Assets.versioned(path)" />
       </td>
     </tr>
   </table>

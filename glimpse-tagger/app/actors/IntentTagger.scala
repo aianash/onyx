@@ -1,6 +1,6 @@
 package actors
 
-import java.io.{FileWriter, PrintWriter}
+import java.io._
 
 import akka.actor.{Actor, ActorLogging, Props}
 
@@ -11,17 +11,28 @@ case class TagIntent(id: String, intents: Seq[String]) extends IntentTaggerProto
 
 class IntentTagger(outfile: String) extends Actor with ActorLogging {
 
-  val pw = new PrintWriter(new FileWriter(outfile, true))
-
   def receive = {
-    case TagIntent(id: String, intents: Seq[String]) =>
-      intents foreach { intent =>
-        pw.append(id + "," + intent + "\n")
-        pw.flush()
-      }
+    case TagIntent(id: String, intents: Seq[String]) => addOrUpdate(id, intents)
   }
 
-  override def postStop = pw.close()
+  private def addOrUpdate(id: String, intents: Seq[String]) {
+    val tmpfile = File.createTempFile("tmp", "")
+    val br = new BufferedReader(new FileReader(outfile))
+    val bw = new BufferedWriter(new FileWriter(tmpfile))
+    var line = br.readLine
+    while(line != null) {
+      if(line.split(",").head != id) bw.write(line + "\n")
+      line = br.readLine
+    }
+    intents.foreach { intent =>
+      bw.write(id + "," + intent + "\n")
+    }
+    br.close()
+    bw.close()
+
+    val oldfile = new File(outfile)
+    if(oldfile.delete()) tmpfile.renameTo(oldfile)
+  }
 
 }
 

@@ -33,6 +33,13 @@ window.onload = function() {
   $('#remove-box').on('click', removeBoxCallback(canvas));
   $('#clear-all').on('click', clearBoxesCallback(canvas));
   $('#upload-config').on('change', uploadConfigCallback(canvas));
+  bindKeyEvents();
+}
+
+function bindKeyEvents() {
+  Mousetrap.bind('del', function() {
+    $('#remove-box').click();
+  })
 }
 
 
@@ -124,7 +131,6 @@ function addBoxCallback(canvas){
 
 function removeBoxCallback(canvas) {
   return function() {
-    console.log(canvas.getActiveObject());
     canvas.getActiveObject().remove();
   }
 }

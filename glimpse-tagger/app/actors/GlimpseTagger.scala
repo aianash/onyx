@@ -11,15 +11,26 @@ case class TagGlimpse(id: String, glimpses: Seq[Int]) extends GlimpseTaggerProto
 
 class GlimpseTagger(outfile: String) extends Actor with ActorLogging {
 
-  val pw = new PrintWriter(new FileWriter(outfile, true))
-
   def receive = {
-    case TagGlimpse(id, glimpses) =>
-      pw.append(id + "," + glimpses.mkString(",") + "\n")
-      pw.flush()
+    case TagGlimpse(id, glimpses) => addOrUpdate(id, glimpses)
   }
 
-  override def postStop = pw.close()
+  private def addOrUpdate(id: String, glimpses: Seq[Int]) {
+    val tmpfile = File.createTempFile("tmp", "")
+    val br = new BufferedReader(new FileReader(outfile))
+    val bw = new BufferedWriter(new FileWriter(tmpfile))
+    var line = br.readLine
+    while(line != null) {
+      if(line.split(",").head != id) bw.write(line + "\n")
+      line = br.readLine
+    }
+    bw.write(id + "," + glimpses.mkString(",") + "\n")
+    br.close()
+    bw.close()
+
+    val oldfile = new File(outfile)
+    if(oldfile.delete()) tmpfile.renameTo(oldfile)
+  }
 
 }
 
