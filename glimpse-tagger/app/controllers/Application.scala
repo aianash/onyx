@@ -7,6 +7,7 @@ import scala.io.{Source => ScalaSource}
 import scala.collection.immutable.HashMap
 
 import java.net.URLEncoder
+import java.nio.file.{Paths, Files}
 
 import akka.actor.{ActorRef, Props, ActorSystem}
 import akka.pattern.ask
@@ -41,8 +42,6 @@ class Application @Inject()(system: ActorSystem, config: Configuration) extends 
   val glimpsetagger   = system.actorOf(GlimpseTagger.props(glimpseoutfile))
   val intenttagger    = system.actorOf(IntentTagger.props(intentoutfile))
 
-  val glimpsetags     = readGlimpseTagsToMap(glimpseoutfile)
-  val intenttags      = readIntentTagsToMap(intentoutfile)
 
   /**
    * Action to get image
@@ -54,12 +53,15 @@ class Application @Inject()(system: ActorSystem, config: Configuration) extends 
     val img  =  Await.result(imgF, timeout.duration).asInstanceOf[String]
     val path = "img/partial/" + img
 
-    val intentsconf = intentsjson.as[Array[Array[String]]]
+    val intentsconf = intentsjson.as[Seq[Seq[String]]]
 
-    val selectedglimpses = glimpsetags.getOrElse(img, Array.empty[String]).mkString(",")
-    val selectedintents  = intenttags.getOrElse(img, Array.empty[String])
+    val selectedglimpsesF = glimpsetagger ? GetGlimpse(img)
+    val selectedintentsF  = intenttagger ? GetIntent(img)
 
-    Ok(views.html.img(idx, img, path, URLEncoder.encode(glimpseconf, "UTF-8"), intentsconf, selectedglimpses, selectedintents))
+    val selectedglimpses = Await.result(selectedglimpsesF, timeout.duration).asInstanceOf[Seq[Int]]
+    val selectedintents = Await.result(selectedintentsF, timeout.duration).asInstanceOf[Seq[String]]
+
+    Ok(views.html.img(idx, img, path, URLEncoder.encode(glimpseconf, "UTF-8"), intentsconf, selectedglimpses.mkString(","), selectedintents))
   }
 
   /**
@@ -96,18 +98,5 @@ class Application @Inject()(system: ActorSystem, config: Configuration) extends 
     )
     Ok.sendEntity(entity).withHeaders(CONTENT_DISPOSITION->"attachment; filename=\"config.json\"")
   }
-
-  private def readGlimpseTagsToMap(file: String) =
-    ScalaSource.fromFile(file).getLines.toList.foldLeft(HashMap.empty[String, Array[String]])((map, line) => {
-      val els = line.split(",")
-      map + ((els.head, els.tail))
-    })
-
-  private def readIntentTagsToMap(file: String) =
-    ScalaSource.fromFile(file).getLines.toList.foldLeft(HashMap.empty[String, Array[String]])((map, line) => {
-      val els = line.split(",")
-      if(map.contains(els.head)) map + ((els.head, els.tail.mkString +: map.get(els.head).get))
-      else map + ((els.head, els.tail))
-    })
 
 }

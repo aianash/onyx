@@ -30,7 +30,7 @@ function addCallbacks(canvas) {
     var id = jQuery('#id').val();
     var intents = [];
     $('.intents').each(function() {
-      intents = intents.concat($(this).val())
+      intents = intents.concat($(this).val() || [])
     });
     sendAjax('/tag', 'id=' + id + '&tags=' + JSON.stringify(glimpses) + '&intents=' + JSON.stringify(intents));
   });
