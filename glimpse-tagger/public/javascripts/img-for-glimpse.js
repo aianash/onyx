@@ -28,11 +28,17 @@ function init() {
 function addCallbacks(canvas) {
   $('button').on('click', function() {
     var id = jQuery('#id').val();
-    var intents = [];
-    $('.intents').each(function() {
-      intents = intents.concat($(this).val() || [])
-    });
-    sendAjax('/tag', 'id=' + id + '&tags=' + JSON.stringify(glimpses) + '&intents=' + JSON.stringify(intents));
+    var succ = function() {
+      $('#result').html('Tags added successfully.');
+      $('#result').show();
+      $('#result').css('color', 'green');
+    }
+    var fail = function() {
+      $('#result').html('Some error occurred !');
+      $('#result').show();
+      $('#result').css('color', 'red');
+    }
+    sendAjax('/tag-glimpse', 'id=' + id + '&tags=' + JSON.stringify(glimpses), succ, fail);
   });
 }
 
@@ -103,5 +109,9 @@ function bindKeyEvents() {
 
   Mousetrap.bind('right', function() {
     $('a')[1].click();
+  });
+
+  Mousetrap.bind('enter', function() {
+    $('#submit').click();
   });
 }

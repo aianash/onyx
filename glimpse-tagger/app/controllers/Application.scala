@@ -25,6 +25,7 @@ import play.api.http.HttpEntity
 import javax.inject._
 
 import actors._
+import utils._
 
 @Singleton
 class Application @Inject()(system: ActorSystem, config: Configuration) extends Controller {
@@ -35,8 +36,8 @@ class Application @Inject()(system: ActorSystem, config: Configuration) extends 
   val glimpseconffile = config.underlying.getString("application.glimpse-conffile")
   val intentconffile  = config.underlying.getString("application.intent-conffile")
 
-  val glimpseconf     = ScalaSource.fromFile(glimpseconffile).mkString
-  val intentsjson     = Json.parse(ScalaSource.fromFile(intentconffile).mkString)
+  val glimpseconf     = new GlimpseConfig(glimpseconffile)
+  val intentconf      = new IntentConfig(intentconffile)
 
   val imageserver     = system.actorOf(ImageServer.props(imgdir))
   val glimpsetagger   = system.actorOf(GlimpseTagger.props(glimpseoutfile))
@@ -47,36 +48,49 @@ class Application @Inject()(system: ActorSystem, config: Configuration) extends 
    * Action to get image
    * @param {Int} id: Location of image in list
    */
-  def img(idx: Int) = Action { implicit req =>
+  def imgForGlimpse(idx: Int) = Action { implicit req =>
     implicit val timeout = Timeout(1 second)
     val imgF = imageserver ? GetImage(idx)
     val img  =  Await.result(imgF, timeout.duration).asInstanceOf[String]
     val path = "img/partial/" + img
 
-    val intentsconf = intentsjson.as[Seq[Seq[String]]]
-
     val selectedglimpsesF = glimpsetagger ? GetGlimpse(img)
-    val selectedintentsF  = intenttagger ? GetIntent(img)
-
     val selectedglimpses = Await.result(selectedglimpsesF, timeout.duration).asInstanceOf[Seq[Int]]
-    val selectedintents = Await.result(selectedintentsF, timeout.duration).asInstanceOf[Seq[String]]
 
-    Ok(views.html.img(idx, img, path, URLEncoder.encode(glimpseconf, "UTF-8"), intentsconf, selectedglimpses.mkString(","), selectedintents))
+    Ok(views.html.imgForGlimpse(idx, img, path, URLEncoder.encode(glimpseconf.get, "UTF-8"), selectedglimpses.mkString(",")))
   }
 
   /**
-   * Action to save glimpse tags and intents for given image
-   * @param {String} id: id of the image
+   * Action to save glimpse tags for given image
    * @param {String} glimpses: glimpse tags, json string of 1s and 0s
    */
-  def tag(id: String, glimpses: String, intents: String) = Action { implicit req =>
+  def tagGlimpse(id: String, glimpses: String) = Action { implicit req =>
     val glimpsejson = Json.parse(glimpses)
-    val intentjson = Json.parse(intents)
-
     glimpsetagger ! TagGlimpse(id, glimpsejson.as[Seq[Int]])
-    intenttagger ! TagIntent(id, intentjson.as[Seq[String]])
-
     Ok("Glimpse tags will be added !")
+  }
+
+  /**
+   * Action to random get image for intent tagging
+   */
+  def imgForIntent = Action { implicit req =>
+    implicit val timeout = Timeout(1 second)
+    val imgF = imageserver ? GetRandomImage
+    val img  =  Await.result(imgF, timeout.duration).asInstanceOf[String]
+    val path = "img/partial/" + img
+    val intent = intentconf.nextRandomIntent
+
+    Ok(views.html.imgForIntent(img, path, intent))
+  }
+
+  /**
+   * Action to tag intents for a given image
+   * @param  {String} id: Id of image
+   * @param  {String} intent: Intent to be added
+   */
+  def tagIntent(id: String, intent: String) = Action { implicit req =>
+    intenttagger ! TagIntent(id, intent)
+    Ok("Successfully tagged.")
   }
 
   /**
