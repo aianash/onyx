@@ -2,7 +2,7 @@ GET     /img-for-glimpse    controllers.Application.imgForGlimpse(idx: Int ?= 0)
 GET     /img-for-intent     controllers.Application.imgForIntent
 
 GET     /tag-glimpse        controllers.Application.tagGlimpse(id: String, tags: String)
-GET     /tag-intent         controllers.Application.tagIntent(id: String, intent: String)
+GET     /tag-intent         controllers.Application.tagIntent(id: String, intent: String, resp: String)
 
 GET     /config-generator   controllers.Application.configGenerator()
 GET     /save-config        controllers.Application.saveConfig(config: String)

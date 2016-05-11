@@ -88,8 +88,8 @@ class Application @Inject()(system: ActorSystem, config: Configuration) extends 
    * @param  {String} id: Id of image
    * @param  {String} intent: Intent to be added
    */
-  def tagIntent(id: String, intent: String) = Action { implicit req =>
-    intenttagger ! TagIntent(id, intent)
+  def tagIntent(id: String, intent: String, resp: String) = Action { implicit req =>
+    intenttagger ! TagIntent(id, intent, resp)
     Ok("Successfully tagged.")
   }
 
