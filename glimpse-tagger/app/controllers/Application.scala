@@ -75,7 +75,7 @@ class Application @Inject()(system: ActorSystem, config: Configuration) extends 
    */
   def imgForIntent = Action { implicit req =>
     implicit val timeout = Timeout(1 second)
-    val imgF = imageserver ? GetRandomImage
+    val imgF = imageserver ? GetNextImage
     val img  =  Await.result(imgF, timeout.duration).asInstanceOf[String]
     val path = "img/partial/" + img
     val intent = intentconf.nextRandomIntent
